@@ -191,9 +191,18 @@ textarea{resize:vertical;min-height:60px}
 #mobile-toggle{display:none;position:fixed;top:14px;left:14px;z-index:25;width:36px;height:36px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);align-items:center;justify-content:center;font-size:.9rem}
 @media(max-width:768px){#sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#mobile-toggle{display:flex}.content-grid{grid-template-columns:1fr}.modal{width:96%}.form-row{flex-direction:column;gap:0}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important}}
+
+#quick-save-overlay{position:fixed;inset:0;background:rgba(9,9,11,.95);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fafafa;font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:600;animation:fadeIn .3s ease}
+#quick-save-overlay i{font-size:3rem;margin-bottom:16px}
+#quick-save-overlay.success{color:#22c55e}
+#quick-save-overlay.error{color:#ef4444}
+
 </style>
 </head>
 <body>
+
+<div id="quick-save-overlay"><i class="fa-solid fa-spinner loading-spin"></i><div id="qs-text">Saving to Brain...</div></div>
+
 <button id="mobile-toggle" aria-label="Toggle sidebar"><i class="fa-solid fa-bars"></i></button>
 <div id="app">
   <aside id="sidebar">
@@ -282,19 +291,29 @@ textarea{resize:vertical;min-height:60px}
 // ══════════════════════════════════════════════════════════
 // 🔴 PASTE YOUR FIREBASE CONFIG HERE
 // ══════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════
-// 🔴 PASTE YOUR FIREBASE CONFIG HERE
-// ══════════════════════════════════════════════════════════
-const firebaseConfig = {
+// Import the functions you need from the SDKs you need
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+
   apiKey: "AIzaSyDpMQ4uioCoWCYVDQHVIwuEYp2CP1LXyYc",
+
   authDomain: "secondbrain-a8212.firebaseapp.com",
+
   projectId: "secondbrain-a8212",
+
   storageBucket: "secondbrain-a8212.firebasestorage.app",
+
   messagingSenderId: "1074787568119",
+
   appId: "1:1074787568119:web:3a026388526a196c18c6f2"
+
 };
-firebase.initializeApp(firebaseConfig);
-// ══════════════════════════════════════════════════════════
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 // ══════════════════════════════════════════════════════════
 
 firebase.initializeApp(firebaseConfig);
@@ -459,16 +478,55 @@ function showReminderNotif(item){const p=document.createElement('div');p.classNa
 
 function checkExtensionParams(){const p=new URLSearchParams(window.location.search);if(p.get('action')==='save'){const prefill={type:p.get('type')||'link',url:p.get('url')||'',title:p.get('title')||''};window.history.replaceState({},'',window.location.pathname);setTimeout(()=>openAddModal(prefill),500);}}
 
-function initEvents(){
-  document.getElementById('search-input').addEventListener('input',e=>{state.searchQuery=e.target.value;renderContent();});
-  document.getElementById('add-url').addEventListener('blur',()=>{const url=document.getElementById('add-url').value.trim();if(url)fetchUrlMetadata(url);});
-  document.getElementById('btn-theme').addEventListener('click',()=>{renderThemeGrid();openModal('modal-theme');});
-  document.getElementById('btn-settings').addEventListener('click',()=>{updateSyncUI();openModal('modal-settings');});
-  document.getElementById('mobile-toggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');});
-  document.getElementById('main').addEventListener('click',()=>{if(window.innerWidth<768)document.getElementById('sidebar').classList.remove('open');});
-  document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');});});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show'));if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('search-input').focus();}if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openAddModal();}});
-  if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+function checkExtensionParams(){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('action')){
+    const url=p.get('url')||'';const type=p.get('type')||'link';const title=p.get('title')||'';
+    window.history.replaceState({},'',window.location.pathname);
+    
+    if(p.get('action')==='quicksave'){
+      performQuickSave(type,url,title);
+    } else {
+      setTimeout(()=>openAddModal({type,url,title}),500);
+    }
+  }
+}
+
+async function performQuickSave(type,url,title){
+  const overlay=document.getElementById('quick-save-overlay');
+  overlay.style.display='flex';
+  
+  if(!state.user){
+    document.getElementById('qs-text').textContent='Please log in first!';
+    overlay.querySelector('i').className='fa-solid fa-circle-exclamation';
+    overlay.classList.add('error');
+    return;
+  }
+
+  let description='';let image='';
+  try{
+    const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+    const data=await res.json();
+    if(data.status==='success'){
+      title=data.data.title||title;description=data.data.description||'';
+      image=data.data.image?data.data.image.url:'';
+    }
+  }catch(e){}
+
+  const ai=AIEngine.analyze({type,url,title,description});
+  const itemData={type,url,title,description,tags:ai.tags,folder:ai.folder,image,isFavorite:false,updatedAt:new Date().toISOString(),userId:state.user.uid,createdAt:new Date().toISOString(),source:'extension'};
+
+  try{
+    await db.collection('items').add(itemData);
+    document.getElementById('qs-text').textContent='Saved to Brain!';
+    overlay.querySelector('i').className='fa-solid fa-check-circle';
+    overlay.classList.add('success');
+    setTimeout(()=>window.close(),1500); // Auto-closes the tab after 1.5 seconds!
+  }catch(e){
+    document.getElementById('qs-text').textContent='Error saving!';
+    overlay.querySelector('i').className='fa-solid fa-circle-exclamation';
+    overlay.classList.add('error');
+  }
 }
 
 function init(){
