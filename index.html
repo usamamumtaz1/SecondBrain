@@ -288,10 +288,33 @@ function saveLocal(){localStorage.setItem('sb_settings',JSON.stringify({theme:st
 function signInGoogle(){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).then(r=>{toast('Signed in as '+r.user.displayName,'success');}).catch(e=>{toast('Login failed: '+e.message,'error');});}
 function signOutGoogle(){auth.signOut();toast('Signed out','info');}
 
+// Check if extension sent a quicksave request
+let pendingQuickSave = null;
+const params = new URLSearchParams(window.location.search);
+if(params.get('action') === 'quicksave'){
+    pendingQuickSave = { type: params.get('type')||'link', url: params.get('url')||'', title: params.get('title')||'' };
+    window.history.replaceState({},'',window.location.pathname); // Clean the URL
+}
+
 auth.onAuthStateChanged(user=>{
   state.user=user;updateSyncUI();
-  if(user){subscribeToItems();}
-  else{if(state.unsubscribe)state.unsubscribe();state.items=[];renderAll();}
+  if(user){
+    subscribeToItems();
+    // If extension is waiting to save, do it instantly now that we are logged in!
+    if(pendingQuickSave){
+       performQuickSave(pendingQuickSave.type, pendingQuickSave.url, pendingQuickSave.title);
+       pendingQuickSave = null; 
+    }
+  }
+  else{
+    if(state.unsubscribe)state.unsubscribe();state.items=[];renderAll();
+    
+    // If extension wants to save, but we aren't logged in, auto-popup the login screen
+    if(pendingQuickSave){
+       const provider=new firebase.auth.GoogleAuthProvider();
+       auth.signInWithPopup(provider).catch(e=>console.error(e));
+    }
+  }
 });
 
 function subscribeToItems(){
@@ -418,16 +441,39 @@ function clearAllData(){if(!state.user)return;const batch=db.batch();state.items
 function checkReminders(){const now=Date.now();state.items.forEach(item=>{if(item.reminder&&!item.reminderNotified&&new Date(item.reminder).getTime()<=now){item.reminderNotified=true;showReminderNotif(item);db.collection('items').doc(item.id).update({reminderNotified:true});}});}
 function showReminderNotif(item){const p=document.createElement('div');p.className='reminder-popup';p.innerHTML=`<h4><i class="fa-solid fa-bell"></i> Reminder</h4><p>${escHtml(item.title||'Untitled')}</p><div class="rp-actions"><button class="btn btn-ghost" onclick="this.closest('.reminder-popup').remove()">Dismiss</button><button class="btn btn-primary" onclick="this.closest('.reminder-popup').remove();openDetail('${item.id}')">View</button></div>`;document.body.appendChild(p);if(Notification.permission==='granted')new Notification('SecondBrain Reminder',{body:item.title||'Untitled'});setTimeout(()=>p.remove(),15000);}
 
-function checkExtensionParams(){const p=new URLSearchParams(window.location.search);if(p.get('action')){const url=p.get('url')||'';const type=p.get('type')||'link';const title=p.get('title')||'';window.history.replaceState({},'',window.location.pathname);if(p.get('action')==='quicksave'){performQuickSave(type,url,title);}else{setTimeout(()=>openAddModal({type,url,title}),500);}}}
 
 async function performQuickSave(type,url,title){
   const overlay=document.getElementById('quick-save-overlay');overlay.style.display='flex';
-  if(!state.user){document.getElementById('qs-text').textContent='Please log in first!';overlay.querySelector('i').className='fa-solid fa-circle-exclamation';overlay.classList.add('error');return;}
+  document.getElementById('qs-text').textContent='Saving to Brain...';
+  overlay.querySelector('i').className='fa-solid fa-spinner loading-spin';
+  overlay.classList.remove('error','success');
+
   let description='';let image='';
-  try{if(url){const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);const data=await res.json();if(data.status==='success'){title=data.data.title||title;description=data.data.description||'';if(data.data.image&&data.data.image.url)image=data.data.image.url;}}}catch(e){}
+  try{
+    if(url){
+      const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+      const data=await res.json();
+      if(data.status==='success'){
+        title=data.data.title||title;description=data.data.description||'';
+        if(data.data.image&&data.data.image.url)image=data.data.image.url;
+      }
+    }
+  }catch(e){}
+
   const ai=AIEngine.analyze({type,url,title,description});
   const itemData={type,url,title,description,tags:ai.tags,folder:ai.folder,image,isFavorite:false,updatedAt:new Date().toISOString(),userId:state.user.uid,createdAt:new Date().toISOString(),source:'extension'};
-  try{await db.collection('items').add(itemData);document.getElementById('qs-text').textContent='Saved to Brain!';overlay.querySelector('i').className='fa-solid fa-check-circle';overlay.classList.add('success');setTimeout(()=>window.close(),1500);}catch(e){document.getElementById('qs-text').textContent='Error saving!';overlay.querySelector('i').className='fa-solid fa-circle-exclamation';overlay.classList.add('error');}
+
+  try{
+    await db.collection('items').add(itemData);
+    document.getElementById('qs-text').textContent='Saved to Brain!';
+    overlay.querySelector('i').className='fa-solid fa-check-circle';
+    overlay.classList.add('success');
+    setTimeout(()=>window.close(),1500); // Auto-closes the tab!
+  }catch(e){
+    document.getElementById('qs-text').textContent='Error saving!';
+    overlay.querySelector('i').className='fa-solid fa-circle-exclamation';
+    overlay.classList.add('error');
+  }
 }
 
 function initEvents(){
