@@ -262,22 +262,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // ══════════════════════════════════════════════════════════
-// EXTENSION AUTH RELAY MODE
+// EXTENSION AUTH RELAY MODE (Redirect Method - Bulletproof)
 // ══════════════════════════════════════════════════════════
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('authRelay') === 'true') {
-    document.body.innerHTML = `
-        <div style="background:#09090b;color:#fafafa;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;">
-            <h2 style="margin-bottom:20px">Connect Extension</h2>
-            <button id="ext-login-btn" style="padding:12px 24px; border-radius:8px; background:#f59e0b; color:#000; font-weight:bold; font-size:16px; border:none; cursor:pointer;">
-                Sign in with Google
-            </button>
-        </div>`;
+    const relayAuth = firebase.auth(); // Use local auth instance
     
-    // Wait for the user to click the button (bypasses popup blockers!)
-    document.getElementById('ext-login-btn').addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).then(result => {
+    // 1. Check if we are returning from a Google Redirect login
+    relayAuth.getRedirectResult().then(result => {
+        if (result.user) {
+            // SUCCESS! We logged in and Google redirected us back.
             const uid = result.user.uid;
             const token = result.credential.accessToken;
             const idToken = result.credential.idToken || '';
@@ -291,16 +285,30 @@ if (urlParams.get('authRelay') === 'true') {
                      style="display:none">
                 </div>
                 <div style="background:#09090b;color:#22c55e;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem">Extension Connected! Closing tab...</div>`;
-            window.history.replaceState({}, '', window.location.pathname);
-        }).catch(err => {
-            document.body.innerHTML = `<div style="background:#09090b;color:#ef4444;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem">Login failed. Close this tab.</div>`;
-        });
+        } else {
+            // 2. We haven't logged in yet. Show the button to start the redirect.
+            document.body.innerHTML = `
+                <div style="background:#09090b;color:#fafafa;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;">
+                    <h2 style="margin-bottom:20px">Connect Extension</h2>
+                    <button id="ext-login-btn" style="padding:12px 24px; border-radius:8px; background:#f59e0b; color:#000; font-weight:bold; font-size:16px; border:none; cursor:pointer;">
+                        Sign in with Google
+                    </button>
+                </div>`;
+            
+            // 3. When clicked, redirect the whole tab to Google (No popups to block!)
+            document.getElementById('ext-login-btn').addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                relayAuth.signInWithRedirect(provider);
+            });
+        }
+    }).catch(err => {
+        document.body.innerHTML = `<div style="background:#09090b;color:#ef4444;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem">Login failed: ${err.message}</div>`;
     });
+
     // Stop the rest of the app from loading
     throw new Error("Relay mode active, stopping normal app load.");
 }
 // ══════════════════════════════════════════════════════════
-
 
 const db = firebase.firestore();
 const auth = firebase.auth();
