@@ -179,7 +179,7 @@ textarea{resize:vertical;min-height:60px}
 </style>
 </head>
 <body>
-<div id="quick-save-overlay"><i class="fa-solid fa-spinner loading-spin"></i><div id="qs-text">Saving to Brain...</div></div>
+
 <button id="mobile-toggle" aria-label="Toggle sidebar"><i class="fa-solid fa-bars"></i></button>
 <div id="app">
   <aside id="sidebar">
@@ -302,7 +302,7 @@ auth.onAuthStateChanged(user=>{
     subscribeToItems();
     // If extension is waiting to save, do it instantly now that we are logged in!
     if(pendingQuickSave){
-       performQuickSave(pendingQuickSave.type, pendingQuickSave.url, pendingQuickSave.title);
+       (pendingQuickSave.type, pendingQuickSave.url, pendingQuickSave.title);
        pendingQuickSave = null; 
     }
   }
@@ -442,40 +442,39 @@ function checkReminders(){const now=Date.now();state.items.forEach(item=>{if(ite
 function showReminderNotif(item){const p=document.createElement('div');p.className='reminder-popup';p.innerHTML=`<h4><i class="fa-solid fa-bell"></i> Reminder</h4><p>${escHtml(item.title||'Untitled')}</p><div class="rp-actions"><button class="btn btn-ghost" onclick="this.closest('.reminder-popup').remove()">Dismiss</button><button class="btn btn-primary" onclick="this.closest('.reminder-popup').remove();openDetail('${item.id}')">View</button></div>`;document.body.appendChild(p);if(Notification.permission==='granted')new Notification('SecondBrain Reminder',{body:item.title||'Untitled'});setTimeout(()=>p.remove(),15000);}
 
 
-async function performQuickSave(type,url,title){
-  const overlay=document.getElementById('quick-save-overlay');overlay.style.display='flex';
-  document.getElementById('qs-text').textContent='Saving to Brain...';
-  overlay.querySelector('i').className='fa-solid fa-spinner loading-spin';
-  overlay.classList.remove('error','success');
+async function performQuickSave(type, url, title) {
+  // If not logged in, just close the hidden window. The user must log in on the main app first.
+  if (!state.user) {
+    window.close();
+    return;
+  }
 
-  let description='';let image='';
-  try{
-    if(url){
-      const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
-      const data=await res.json();
-      if(data.status==='success'){
-        title=data.data.title||title;description=data.data.description||'';
-        if(data.data.image&&data.data.image.url)image=data.data.image.url;
+  let description = ''; let image = '';
+  try {
+    if (url) {
+      const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        title = data.data.title || title; description = data.data.description || '';
+        if (data.data.image && data.data.image.url) image = data.data.image.url;
       }
     }
-  }catch(e){}
+  } catch (e) {}
 
-  const ai=AIEngine.analyze({type,url,title,description});
-  const itemData={type,url,title,description,tags:ai.tags,folder:ai.folder,image,isFavorite:false,updatedAt:new Date().toISOString(),userId:state.user.uid,createdAt:new Date().toISOString(),source:'extension'};
+  const ai = AIEngine.analyze({type, url, title, description});
+  const itemData = {
+    type, url, title, description, tags: ai.tags, folder: ai.folder, image,
+    isFavorite: false, updatedAt: new Date().toISOString(),
+    userId: state.user.uid, createdAt: new Date().toISOString(), source: 'extension'
+  };
 
-  try{
+  try {
     await db.collection('items').add(itemData);
-    document.getElementById('qs-text').textContent='Saved to Brain!';
-    overlay.querySelector('i').className='fa-solid fa-check-circle';
-    overlay.classList.add('success');
-    setTimeout(()=>window.close(),1500); // Auto-closes the tab!
-  }catch(e){
-    document.getElementById('qs-text').textContent='Error saving!';
-    overlay.querySelector('i').className='fa-solid fa-circle-exclamation';
-    overlay.classList.add('error');
-  }
+  } catch (e) {}
+  
+  // Close the invisible window immediately after saving
+  window.close();
 }
-
 function initEvents(){
   document.getElementById('search-input').addEventListener('input',e=>{state.searchQuery=e.target.value;renderContent();});
   document.getElementById('add-url').addEventListener('blur',()=>{const url=document.getElementById('add-url').value.trim();if(url)fetchUrlMetadata(url);});
