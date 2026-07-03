@@ -289,32 +289,12 @@ function signInGoogle(){const provider=new firebase.auth.GoogleAuthProvider();au
 function signOutGoogle(){auth.signOut();toast('Signed out','info');}
 
 // Check if extension sent a quicksave request
-let pendingQuickSave = null;
-const params = new URLSearchParams(window.location.search);
-if(params.get('action') === 'quicksave'){
-    pendingQuickSave = { type: params.get('type')||'link', url: params.get('url')||'', title: params.get('title')||'' };
-    window.history.replaceState({},'',window.location.pathname); // Clean the URL
-}
+
 
 auth.onAuthStateChanged(user=>{
   state.user=user;updateSyncUI();
-  if(user){
-    subscribeToItems();
-    // If extension is waiting to save, do it instantly now that we are logged in!
-    if(pendingQuickSave){
-       (pendingQuickSave.type, pendingQuickSave.url, pendingQuickSave.title);
-       pendingQuickSave = null; 
-    }
-  }
-  else{
-    if(state.unsubscribe)state.unsubscribe();state.items=[];renderAll();
-    
-    // If extension wants to save, but we aren't logged in, auto-popup the login screen
-    if(pendingQuickSave){
-       const provider=new firebase.auth.GoogleAuthProvider();
-       auth.signInWithPopup(provider).catch(e=>console.error(e));
-    }
-  }
+  if(user){subscribeToItems();}
+  else{if(state.unsubscribe)state.unsubscribe();state.items=[];renderAll();}
 });
 
 function subscribeToItems(){
@@ -442,39 +422,7 @@ function checkReminders(){const now=Date.now();state.items.forEach(item=>{if(ite
 function showReminderNotif(item){const p=document.createElement('div');p.className='reminder-popup';p.innerHTML=`<h4><i class="fa-solid fa-bell"></i> Reminder</h4><p>${escHtml(item.title||'Untitled')}</p><div class="rp-actions"><button class="btn btn-ghost" onclick="this.closest('.reminder-popup').remove()">Dismiss</button><button class="btn btn-primary" onclick="this.closest('.reminder-popup').remove();openDetail('${item.id}')">View</button></div>`;document.body.appendChild(p);if(Notification.permission==='granted')new Notification('SecondBrain Reminder',{body:item.title||'Untitled'});setTimeout(()=>p.remove(),15000);}
 
 
-async function performQuickSave(type, url, title) {
-  // If not logged in, just close the hidden window. The user must log in on the main app first.
-  if (!state.user) {
-    window.close();
-    return;
-  }
 
-  let description = ''; let image = '';
-  try {
-    if (url) {
-      const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
-      const data = await res.json();
-      if (data.status === 'success') {
-        title = data.data.title || title; description = data.data.description || '';
-        if (data.data.image && data.data.image.url) image = data.data.image.url;
-      }
-    }
-  } catch (e) {}
-
-  const ai = AIEngine.analyze({type, url, title, description});
-  const itemData = {
-    type, url, title, description, tags: ai.tags, folder: ai.folder, image,
-    isFavorite: false, updatedAt: new Date().toISOString(),
-    userId: state.user.uid, createdAt: new Date().toISOString(), source: 'extension'
-  };
-
-  try {
-    await db.collection('items').add(itemData);
-  } catch (e) {}
-  
-  // Close the invisible window immediately after saving
-  window.close();
-}
 function initEvents(){
   document.getElementById('search-input').addEventListener('input',e=>{state.searchQuery=e.target.value;renderContent();});
   document.getElementById('add-url').addEventListener('blur',()=>{const url=document.getElementById('add-url').value.trim();if(url)fetchUrlMetadata(url);});
