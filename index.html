@@ -8,34 +8,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
 <style>
-/* ═══════════════ THEME VARIABLES ═══════════════ */
-:root,[data-theme="obsidian"]{
-  --bg-primary:#09090b;--bg-secondary:#111113;--bg-tertiary:#18181b;
-  --bg-card:#1c1c20;--bg-hover:#27272a;--bg-input:#18181b;
-  --fg-primary:#fafafa;--fg-secondary:#a1a1aa;--fg-muted:#52525b;
-  --accent:#f59e0b;--accent-hover:#d97706;--accent-soft:rgba(245,158,11,.12);
-  --border:#27272a;--border-light:#3f3f46;
-  --danger:#ef4444;--danger-soft:rgba(239,68,68,.12);
-  --success:#22c55e;--success-soft:rgba(34,197,94,.12);
-  --info:#38bdf8;--info-soft:rgba(56,189,248,.12);
-  --shadow:0 4px 24px rgba(0,0,0,.5);--shadow-sm:0 2px 8px rgba(0,0,0,.3);
-  --radius:10px;--radius-sm:6px;--radius-lg:14px;
-  --sidebar-w:260px;--topbar-h:60px;
-}
+:root,[data-theme="obsidian"]{--bg-primary:#09090b;--bg-secondary:#111113;--bg-tertiary:#18181b;--bg-card:#1c1c20;--bg-hover:#27272a;--bg-input:#18181b;--fg-primary:#fafafa;--fg-secondary:#a1a1aa;--fg-muted:#52525b;--accent:#f59e0b;--accent-hover:#d97706;--accent-soft:rgba(245,158,11,.12);--border:#27272a;--border-light:#3f3f46;--danger:#ef4444;--danger-soft:rgba(239,68,68,.12);--success:#22c55e;--success-soft:rgba(34,197,94,.12);--info:#38bdf8;--info-soft:rgba(56,189,248,.12);--shadow:0 4px 24px rgba(0,0,0,.5);--shadow-sm:0 2px 8px rgba(0,0,0,.3);--radius:10px;--radius-sm:6px;--radius-lg:14px;--sidebar-w:260px;--topbar-h:60px}
 [data-theme="midnight"]{--bg-primary:#0a0e1a;--bg-secondary:#0f1424;--bg-tertiary:#161c34;--bg-card:#1a2040;--bg-hover:#222850;--bg-input:#161c34;--fg-primary:#e8eaf6;--fg-secondary:#9fa4c4;--fg-muted:#5c6088;--accent:#818cf8;--accent-hover:#6366f1;--accent-soft:rgba(129,140,248,.12);--border:#252b4a;--border-light:#353c66;--shadow:0 4px 24px rgba(0,0,0,.6);--shadow-sm:0 2px 8px rgba(0,0,0,.4)}
 [data-theme="forest"]{--bg-primary:#0a110d;--bg-secondary:#0f1a13;--bg-tertiary:#152219;--bg-card:#1a2a1e;--bg-hover:#223428;--bg-input:#152219;--fg-primary:#e8f5e9;--fg-secondary:#8faf94;--fg-muted:#4a6b50;--accent:#4ade80;--accent-hover:#22c55e;--accent-soft:rgba(74,222,128,.12);--border:#1e3324;--border-light:#2e4d36;--shadow:0 4px 24px rgba(0,0,0,.5);--shadow-sm:0 2px 8px rgba(0,0,0,.3)}
 [data-theme="sunset"]{--bg-primary:#120c08;--bg-secondary:#1a110a;--bg-tertiary:#241810;--bg-card:#2c1e14;--bg-hover:#38281c;--bg-input:#241810;--fg-primary:#fef3e2;--fg-secondary:#c4a882;--fg-muted:#7a6248;--accent:#fb923c;--accent-hover:#f97316;--accent-soft:rgba(251,146,60,.12);--border:#3a2818;--border-light:#4e3622;--shadow:0 4px 24px rgba(0,0,0,.6);--shadow-sm:0 2px 8px rgba(0,0,0,.4)}
 [data-theme="arctic"]{--bg-primary:#f0f4f8;--bg-secondary:#e2e8f0;--bg-tertiary:#cbd5e1;--bg-card:#ffffff;--bg-hover:#f1f5f9;--bg-input:#e2e8f0;--fg-primary:#0f172a;--fg-secondary:#475569;--fg-muted:#94a3b8;--accent:#0ea5e9;--accent-hover:#0284c7;--accent-soft:rgba(14,165,233,.1);--border:#cbd5e1;--border-light:#e2e8f0;--danger:#ef4444;--danger-soft:rgba(239,68,68,.1);--success:#16a34a;--success-soft:rgba(22,163,74,.1);--info:#0ea5e9;--info-soft:rgba(14,165,233,.1);--shadow:0 4px 24px rgba(0,0,0,.08);--shadow-sm:0 2px 8px rgba(0,0,0,.05)}
 [data-theme="paper"]{--bg-primary:#faf9f6;--bg-secondary:#f0ede6;--bg-tertiary:#e6e2d8;--bg-card:#ffffff;--bg-hover:#f5f3ee;--bg-input:#f0ede6;--fg-primary:#1a1814;--fg-secondary:#6b6560;--fg-muted:#a39e96;--accent:#c2410c;--accent-hover:#9a3412;--accent-soft:rgba(194,65,12,.08);--border:#d6d3cd;--border-light:#e6e2d8;--shadow:0 4px 24px rgba(0,0,0,.06);--shadow-sm:0 2px 8px rgba(0,0,0,.04)}
 
-/* ═══════════════ RESET & BASE ═══════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:15px;scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--bg-primary);color:var(--fg-primary);min-height:100vh;overflow:hidden;transition:background .4s,color .4s}
@@ -48,14 +33,12 @@ textarea{resize:vertical;min-height:60px}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 ::selection{background:var(--accent);color:#000}
 
-/* ═══════════════ LAYOUT ═══════════════ */
 #app{display:flex;height:100vh;overflow:hidden}
 #sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:transform .3s ease,background .4s;overflow-y:auto;overflow-x:hidden;z-index:20}
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
 #topbar{height:var(--topbar-h);min-height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:var(--bg-secondary);transition:background .4s}
 #content-area{flex:1;overflow-y:auto;padding:24px;position:relative}
 
-/* ═══════════════ SIDEBAR ═══════════════ */
 .sb-header{padding:20px 18px 12px;display:flex;align-items:center;gap:10px}
 .sb-logo{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;color:#000;font-weight:700}
 .sb-title{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:-.02em}
@@ -78,7 +61,6 @@ textarea{resize:vertical;min-height:60px}
 .sb-footer button{flex:1;padding:8px;border-radius:8px;font-size:.8rem;background:var(--bg-tertiary);color:var(--fg-secondary);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
 .sb-footer button:hover{background:var(--bg-hover);color:var(--fg-primary)}
 
-/* ═══════════════ TOPBAR ═══════════════ */
 .tb-left{display:flex;align-items:center;gap:14px}
 .tb-left h2{font-size:1.1rem;font-weight:600;white-space:nowrap}
 .tb-left .item-count{font-size:.8rem;color:var(--fg-muted);font-weight:400}
@@ -93,7 +75,6 @@ textarea{resize:vertical;min-height:60px}
 .tb-bulk button:hover{background:var(--bg-hover);color:var(--fg-primary)}
 .tb-bulk button.danger:hover{background:var(--danger-soft);color:var(--danger)}
 
-/* ═══════════════ CONTENT GRID ═══════════════ */
 .content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;animation:fadeInUp .4s ease}
 .content-grid.list-view{grid-template-columns:1fr;gap:8px}
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;color:var(--fg-muted);text-align:center;animation:fadeInUp .5s ease}
@@ -101,7 +82,6 @@ textarea{resize:vertical;min-height:60px}
 .empty-state h3{font-size:1.1rem;color:var(--fg-secondary);margin-bottom:6px}
 .empty-state p{font-size:.85rem;max-width:320px}
 
-/* ═══════════════ CARD ═══════════════ */
 .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all .2s ease;position:relative;animation:cardIn .35s ease both}
 .card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:var(--shadow)}
 .card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
@@ -177,6 +157,11 @@ textarea{resize:vertical;min-height:60px}
 .sync-status .dot{width:8px;height:8px;border-radius:50%}
 .sync-status .dot.on{background:var(--success)}.sync-status .dot.off{background:var(--fg-muted)}.sync-status .dot.syncing{background:var(--info);animation:pulse 1.5s infinite}
 
+#quick-save-overlay{position:fixed;inset:0;background:rgba(9,9,11,.95);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fafafa;font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:600;animation:fadeIn .3s ease}
+#quick-save-overlay i{font-size:3rem;margin-bottom:16px}
+#quick-save-overlay.success{color:#22c55e}
+#quick-save-overlay.error{color:#ef4444}
+
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
@@ -191,18 +176,10 @@ textarea{resize:vertical;min-height:60px}
 #mobile-toggle{display:none;position:fixed;top:14px;left:14px;z-index:25;width:36px;height:36px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);align-items:center;justify-content:center;font-size:.9rem}
 @media(max-width:768px){#sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#mobile-toggle{display:flex}.content-grid{grid-template-columns:1fr}.modal{width:96%}.form-row{flex-direction:column;gap:0}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important}}
-
-#quick-save-overlay{position:fixed;inset:0;background:rgba(9,9,11,.95);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fafafa;font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:600;animation:fadeIn .3s ease}
-#quick-save-overlay i{font-size:3rem;margin-bottom:16px}
-#quick-save-overlay.success{color:#22c55e}
-#quick-save-overlay.error{color:#ef4444}
-
 </style>
 </head>
 <body>
-
 <div id="quick-save-overlay"><i class="fa-solid fa-spinner loading-spin"></i><div id="qs-text">Saving to Brain...</div></div>
-
 <button id="mobile-toggle" aria-label="Toggle sidebar"><i class="fa-solid fa-bars"></i></button>
 <div id="app">
   <aside id="sidebar">
@@ -234,7 +211,6 @@ textarea{resize:vertical;min-height:60px}
 </div>
 <button id="fab" onclick="openAddModal()" aria-label="Add content"><i class="fa-solid fa-plus"></i></button>
 
-<!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modal-add">
   <div class="modal">
     <div class="modal-header"><h3 id="modal-add-title">Save to Brain</h3><button class="modal-close" onclick="closeModal('modal-add')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -254,17 +230,8 @@ textarea{resize:vertical;min-height:60px}
   </div>
 </div>
 
-<!-- Detail Modal -->
-<div class="modal-overlay" id="modal-detail">
-  <div class="modal"><div class="modal-header"><h3 id="detail-title">Item Detail</h3><button class="modal-close" onclick="closeModal('modal-detail')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="detail-body"></div><div class="modal-footer" id="detail-footer"></div></div>
-</div>
-
-<!-- Theme Modal -->
-<div class="modal-overlay" id="modal-theme">
-  <div class="modal" style="max-width:420px"><div class="modal-header"><h3>Choose Theme</h3><button class="modal-close" onclick="closeModal('modal-theme')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="theme-grid" id="theme-grid"></div></div></div>
-</div>
-
-<!-- Settings Modal -->
+<div class="modal-overlay" id="modal-detail"><div class="modal"><div class="modal-header"><h3 id="detail-title">Item Detail</h3><button class="modal-close" onclick="closeModal('modal-detail')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="detail-body"></div><div class="modal-footer" id="detail-footer"></div></div></div>
+<div class="modal-overlay" id="modal-theme"><div class="modal" style="max-width:420px"><div class="modal-header"><h3>Choose Theme</h3><button class="modal-close" onclick="closeModal('modal-theme')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="theme-grid" id="theme-grid"></div></div></div></div>
 <div class="modal-overlay" id="modal-settings">
   <div class="modal" style="max-width:480px">
     <div class="modal-header"><h3>Settings</h3><button class="modal-close" onclick="closeModal('modal-settings')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -279,44 +246,21 @@ textarea{resize:vertical;min-height:60px}
     </div>
   </div>
 </div>
-
-<!-- Move Modal -->
-<div class="modal-overlay" id="modal-move">
-  <div class="modal" style="max-width:360px"><div class="modal-header"><h3 id="move-modal-title">Move to Folder</h3><button class="modal-close" onclick="closeModal('modal-move')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="move-folder-list"></div></div>
-</div>
+<div class="modal-overlay" id="modal-move"><div class="modal" style="max-width:360px"><div class="modal-header"><h3 id="move-modal-title">Move to Folder</h3><button class="modal-close" onclick="closeModal('modal-move')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="move-folder-list"></div></div></div>
 
 <div id="toast-container"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// 🔴 PASTE YOUR FIREBASE CONFIG HERE
-// ══════════════════════════════════════════════════════════
-// Import the functions you need from the SDKs you need
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-
+const firebaseConfig = {
   apiKey: "AIzaSyDpMQ4uioCoWCYVDQHVIwuEYp2CP1LXyYc",
-
   authDomain: "secondbrain-a8212.firebaseapp.com",
-
   projectId: "secondbrain-a8212",
-
   storageBucket: "secondbrain-a8212.firebasestorage.app",
-
   messagingSenderId: "1074787568119",
-
   appId: "1:1074787568119:web:3a026388526a196c18c6f2"
-
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// ══════════════════════════════════════════════════════════
-
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.firestore();
 const auth = firebase.auth();
 const storageRef = firebase.storage();
@@ -341,14 +285,13 @@ const state={items:[],folders:[...DEFAULT_FOLDERS],currentFilter:'all',currentTa
 function loadLocal(){try{const s=localStorage.getItem('sb_settings');if(s){const d=JSON.parse(s);state.theme=d.theme||'obsidian';state.viewMode=d.viewMode||'grid';state.sortBy=d.sortBy||'newest';}}catch(e){}}
 function saveLocal(){localStorage.setItem('sb_settings',JSON.stringify({theme:state.theme,viewMode:state.viewMode,sortBy:state.sortBy}));}
 
-// ─── FIREBASE AUTH ───
 function signInGoogle(){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).then(r=>{toast('Signed in as '+r.user.displayName,'success');}).catch(e=>{toast('Login failed: '+e.message,'error');});}
 function signOutGoogle(){auth.signOut();toast('Signed out','info');}
 
 auth.onAuthStateChanged(user=>{
   state.user=user;updateSyncUI();
   if(user){subscribeToItems();}
-  else{if(state.unsubscribe)state.unsubscribe();state.items=[];renderAll();} // Clear items on logout
+  else{if(state.unsubscribe)state.unsubscribe();state.items=[];renderAll();}
 });
 
 function subscribeToItems(){
@@ -365,7 +308,6 @@ function updateSyncUI(){
   else{dot.className='dot off';txt.textContent='Not connected';btnAuth.style.display='flex';btnOut.style.display='none';}
 }
 
-// ─── METADATA FETCHER ───
 async function fetchUrlMetadata(url){if(!url)return;const loader=document.getElementById('ai-loading');loader.style.display='flex';try{const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);const data=await res.json();if(data.status==='success'){if(data.data.title&&!document.getElementById('add-title').value)document.getElementById('add-title').value=data.data.title;if(data.data.description&&!document.getElementById('add-desc').value)document.getElementById('add-desc').value=data.data.description;if(data.data.image&&data.data.image.url)document.getElementById('add-image').value=data.data.image.url;runAISuggestions({type:document.getElementById('add-type').value,url,title:data.data.title,description:data.data.description});}}catch(e){}loader.style.display='none';}
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6);}
@@ -476,57 +418,28 @@ function clearAllData(){if(!state.user)return;const batch=db.batch();state.items
 function checkReminders(){const now=Date.now();state.items.forEach(item=>{if(item.reminder&&!item.reminderNotified&&new Date(item.reminder).getTime()<=now){item.reminderNotified=true;showReminderNotif(item);db.collection('items').doc(item.id).update({reminderNotified:true});}});}
 function showReminderNotif(item){const p=document.createElement('div');p.className='reminder-popup';p.innerHTML=`<h4><i class="fa-solid fa-bell"></i> Reminder</h4><p>${escHtml(item.title||'Untitled')}</p><div class="rp-actions"><button class="btn btn-ghost" onclick="this.closest('.reminder-popup').remove()">Dismiss</button><button class="btn btn-primary" onclick="this.closest('.reminder-popup').remove();openDetail('${item.id}')">View</button></div>`;document.body.appendChild(p);if(Notification.permission==='granted')new Notification('SecondBrain Reminder',{body:item.title||'Untitled'});setTimeout(()=>p.remove(),15000);}
 
-function checkExtensionParams(){const p=new URLSearchParams(window.location.search);if(p.get('action')==='save'){const prefill={type:p.get('type')||'link',url:p.get('url')||'',title:p.get('title')||''};window.history.replaceState({},'',window.location.pathname);setTimeout(()=>openAddModal(prefill),500);}}
-
-function checkExtensionParams(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('action')){
-    const url=p.get('url')||'';const type=p.get('type')||'link';const title=p.get('title')||'';
-    window.history.replaceState({},'',window.location.pathname);
-    
-    if(p.get('action')==='quicksave'){
-      performQuickSave(type,url,title);
-    } else {
-      setTimeout(()=>openAddModal({type,url,title}),500);
-    }
-  }
-}
+function checkExtensionParams(){const p=new URLSearchParams(window.location.search);if(p.get('action')){const url=p.get('url')||'';const type=p.get('type')||'link';const title=p.get('title')||'';window.history.replaceState({},'',window.location.pathname);if(p.get('action')==='quicksave'){performQuickSave(type,url,title);}else{setTimeout(()=>openAddModal({type,url,title}),500);}}}
 
 async function performQuickSave(type,url,title){
-  const overlay=document.getElementById('quick-save-overlay');
-  overlay.style.display='flex';
-  
-  if(!state.user){
-    document.getElementById('qs-text').textContent='Please log in first!';
-    overlay.querySelector('i').className='fa-solid fa-circle-exclamation';
-    overlay.classList.add('error');
-    return;
-  }
-
+  const overlay=document.getElementById('quick-save-overlay');overlay.style.display='flex';
+  if(!state.user){document.getElementById('qs-text').textContent='Please log in first!';overlay.querySelector('i').className='fa-solid fa-circle-exclamation';overlay.classList.add('error');return;}
   let description='';let image='';
-  try{
-    const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
-    const data=await res.json();
-    if(data.status==='success'){
-      title=data.data.title||title;description=data.data.description||'';
-      image=data.data.image?data.data.image.url:'';
-    }
-  }catch(e){}
-
+  try{if(url){const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);const data=await res.json();if(data.status==='success'){title=data.data.title||title;description=data.data.description||'';if(data.data.image&&data.data.image.url)image=data.data.image.url;}}}catch(e){}
   const ai=AIEngine.analyze({type,url,title,description});
   const itemData={type,url,title,description,tags:ai.tags,folder:ai.folder,image,isFavorite:false,updatedAt:new Date().toISOString(),userId:state.user.uid,createdAt:new Date().toISOString(),source:'extension'};
+  try{await db.collection('items').add(itemData);document.getElementById('qs-text').textContent='Saved to Brain!';overlay.querySelector('i').className='fa-solid fa-check-circle';overlay.classList.add('success');setTimeout(()=>window.close(),1500);}catch(e){document.getElementById('qs-text').textContent='Error saving!';overlay.querySelector('i').className='fa-solid fa-circle-exclamation';overlay.classList.add('error');}
+}
 
-  try{
-    await db.collection('items').add(itemData);
-    document.getElementById('qs-text').textContent='Saved to Brain!';
-    overlay.querySelector('i').className='fa-solid fa-check-circle';
-    overlay.classList.add('success');
-    setTimeout(()=>window.close(),1500); // Auto-closes the tab after 1.5 seconds!
-  }catch(e){
-    document.getElementById('qs-text').textContent='Error saving!';
-    overlay.querySelector('i').className='fa-solid fa-circle-exclamation';
-    overlay.classList.add('error');
-  }
+function initEvents(){
+  document.getElementById('search-input').addEventListener('input',e=>{state.searchQuery=e.target.value;renderContent();});
+  document.getElementById('add-url').addEventListener('blur',()=>{const url=document.getElementById('add-url').value.trim();if(url)fetchUrlMetadata(url);});
+  document.getElementById('btn-theme').addEventListener('click',()=>{renderThemeGrid();openModal('modal-theme');});
+  document.getElementById('btn-settings').addEventListener('click',()=>{updateSyncUI();openModal('modal-settings');});
+  document.getElementById('mobile-toggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');});
+  document.getElementById('main').addEventListener('click',()=>{if(window.innerWidth<768)document.getElementById('sidebar').classList.remove('open');});
+  document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');});});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show'));if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('search-input').focus();}if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openAddModal();}});
+  if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
 }
 
 function init(){
@@ -535,6 +448,7 @@ function init(){
   document.getElementById('sort-label').textContent={newest:'Newest',oldest:'Oldest',name:'A-Z',folder:'Folder'}[state.sortBy]||'Newest';
   initEvents();renderAll();checkExtensionParams();
   setInterval(checkReminders,30000);checkReminders();
+  if(state.gdriveAccessToken){syncFromDrive();}
 }
 document.addEventListener('DOMContentLoaded',init);
 </script>
