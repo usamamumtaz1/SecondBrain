@@ -263,39 +263,29 @@ firebase.initializeApp(firebaseConfig);
 
 
 // ══════════════════════════════════════════════════════════
-// EXTENSION AUTH RELAY MODE (Fixed Loop)
+// EXTENSION AUTH RELAY MODE
 // ══════════════════════════════════════════════════════════
-const urlParams = new URLSearchParams(window.location.search);
-const isRelayMode = urlParams.get('authRelay') === 'true';
-
+const isRelayMode = new URLSearchParams(window.location.search).get('extLogin') === 'true';
 if (isRelayMode) {
-    document.body.innerHTML = `<div style="background:#09090b;color:#fafafa;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem">Checking login status...</div>`;
+    document.body.innerHTML = `
+        <div style="background:#09090b;color:#fafafa;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;">
+            <h2 style="margin-bottom:20px">Connect Extension</h2>
+            <button id="ext-login-btn" style="padding:12px 24px; border-radius:8px; background:#f59e0b; color:#000; font-weight:bold; font-size:16px; border:none; cursor:pointer;">
+                Sign in with Google
+            </button>
+        </div>`;
     
-    firebase.auth().getRedirectResult().then(result => {
-        if (result.user) {
+    document.getElementById('ext-login-btn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).then(result => {
             const uid = result.user.uid;
-            const token = result.credential.accessToken;
-            const idToken = result.credential.idToken || '';
+            const idToken = result.credential.idToken;
+            const accessToken = result.credential.accessToken;
             
             document.body.innerHTML = `
-                <div id="ext-auth-data" data-uid="${uid}" data-token="${token}" data-id-token="${idToken}" style="display:none"></div>
+                <div id="ext-auth-data" data-uid="${uid}" data-id-token="${idToken}" data-access-token="${accessToken}" style="display:none"></div>
                 <div style="background:#09090b;color:#22c55e;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem">Extension Connected! Closing tab...</div>`;
-            window.history.replaceState({}, '', window.location.pathname);
-        } else {
-            document.body.innerHTML = `
-                <div style="background:#09090b;color:#fafafa;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;">
-                    <h2 style="margin-bottom:20px">Connect Extension</h2>
-                    <button id="ext-login-btn" style="padding:12px 24px; border-radius:8px; background:#f59e0b; color:#000; font-weight:bold; font-size:16px; border:none; cursor:pointer;">
-                        Sign in with Google
-                    </button>
-                </div>`;
-            document.getElementById('ext-login-btn').addEventListener('click', () => {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                firebase.auth().signInWithRedirect(provider);
-            });
-        }
-    }).catch(err => {
-        document.body.innerHTML = `<div style="background:#09090b;color:#ef4444;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem">Login failed. Close this tab.</div>`;
+        }).catch(err => alert("Login failed: " + err.message));
     });
 }
 // ══════════════════════════════════════════════════════════
